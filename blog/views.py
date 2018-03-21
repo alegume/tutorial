@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from .models import Post
 from .forms import PostForm
 from django.utils import timezone
+from django.http import HttpResponseNotFound, Http404
 
 # Create your views here.
 
@@ -16,6 +17,12 @@ def post_detail(request, pk):
     return render(request, 'blog/post_detail.html', {'post': post})
 
 def post_new(request):
+    if not request.user.is_authenticated():
+        return redirect('post_list')
+        # raise Http404()
+        #return HttpResponseNotFound('<h1>404 - Not found :(</h1>')
+
+
     if request.method == "POST":
         form = PostForm(request.POST)
         if form.is_valid():
