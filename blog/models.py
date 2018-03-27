@@ -12,7 +12,7 @@ class Post(models.Model):
             blank=True, null=True)
     visits = models.PositiveIntegerField(default=0)
 
-    def publish(self):
+    def publicar(self):
         self.published_date = timezone.now()
         self.save()
 
