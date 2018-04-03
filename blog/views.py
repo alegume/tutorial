@@ -3,6 +3,7 @@ from .models import Post
 from .forms import PostForm
 from django.utils import timezone
 from django.http import HttpResponseNotFound, Http404
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 
@@ -16,9 +17,10 @@ def post_detail(request, pk):
     post.save()
     return render(request, 'blog/post_detail.html', {'post': post})
 
+@login_required
 def post_new(request):
-    if not request.user.is_authenticated():
-        return redirect('post_list')
+    # if not request.user.is_authenticated():
+    #     return redirect('post_list')
         # raise Http404()
         #return HttpResponseNotFound('<h1>404 - Not found :(</h1>')
 
@@ -35,11 +37,13 @@ def post_new(request):
         form = PostForm()
     return render(request, 'blog/post_new.html', {'form': form})
 
+@login_required
 def post_edit(request, pk):
     post = get_object_or_404(Post, pk=pk)
     if request.method == "POST":
         form = PostForm(request.POST, instance=post)
         if form.is_valid():
+            
             post = form.save(commit=False)
             post.author = request.user
             # post.published_date = timezone.now()
@@ -49,14 +53,17 @@ def post_edit(request, pk):
         form = PostForm(instance=post)
     return render(request, 'blog/post_new.html', {'form': form})
 
+@login_required
 def post_delete(request, pk):
     Post.objects.filter(pk=pk).delete()
     return redirect('post_list')
 
+@login_required
 def post_draft_list(request):
     posts = Post.objects.filter(published_date__isnull=True).order_by('created_date')
     return render(request, 'blog/post_draft_list.html', {'posts': posts})
 
+@login_required
 def post_publish(request, pk):
     post = get_object_or_404(Post, pk=pk)
     post.publicar()
